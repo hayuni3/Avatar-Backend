@@ -19,7 +19,15 @@ router.get('/',authenticate.verifyUser,function(req, res, next) {
         })
         .catch(err => next(err));
    });
-
+router.get('/:userId',authenticate.verifyUser,function(req, res, next) {
+        User.findById(req.params.userId)
+        .then(users => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(users);
+        })
+        .catch(err => next(err));
+    })
 router.post('/signup', (req, res) => {
     //console.log(req);
     User.register(
@@ -66,7 +74,7 @@ router.post('/login', passport.authenticate('local'),  (req, res) => {
     const token = authenticate.getToken({_id: req.user._id});
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json({success: true, token: token, status: 'You are successfully logged in!'});
+        res.json({success: true, token: token, _id: req.user._id, uri: req.user.uri, status: 'You are successfully logged in!'});
     });
 
 router.get('/logout', (req, res, next) => {
@@ -108,21 +116,6 @@ router.put('/update/:id', function(req, res) {
         }
     });
 });
-/*
-router.post('/update', (req, res, next) => {
-    var item = {
-        uri: req.body.uri
-    };
-    var username = req.body.username;
-    var db = 'avatar-database';
-    mongo.connect('mongodb://localhost:27017/avatar-database', function(err, db){
-        db.collection('users').updateOne({"_username": objectId(username)}, {$set: item}, function(err, reulst) {
-            assert.equal(null, err);
-            console.log('item inserted');
-        });
-    })
-    .catch(err => next(err));
-})
-*/
+
 module.exports = router;
 
